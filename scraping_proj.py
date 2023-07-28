@@ -3,28 +3,31 @@ from bs4 import BeautifulSoup
 from time import sleep
 from random import choice
 
-all_quotes = []
-base_url = "http://quotes.toscrape.com"
-url = "/page/1/"
 
-while url:
-    res = requests.get(f"{base_url}{url}")
-    print(f"Now Scraping {base_url}{url}")
-    soup = BeautifulSoup(res.text, "html.parser")
-    quotes = soup.find_all(class_="quote")
+BASE_URL = "http://quotes.toscrape.com"
 
-    for quote in quotes:
-        all_quotes.append({
-            "text":quote.find(class_="text").get_text(),
-            "author":quote.find(class_="author").get_text(),
-            "bio-link":quote.find("a")["href"]
-            })
-    next_btn = soup.find(class_="next")    
-    url = (next_btn.find("a")["href"]) if next_btn else None
-#     sleep(2)
+def scrape_quotes():
+    all_quotes = []
+    url = "/page/1/"
+    while url:
+        res = requests.get(f"{BASE_URL}{url}")
+#         print(f"Now Scraping {BASE_URL}{url}")
+        soup = BeautifulSoup(res.text, "html.parser")
+        quotes = soup.find_all(class_="quote")
 
-def start_game():
-    quote = choice(all_quotes)
+        for quote in quotes:
+            all_quotes.append({
+                "text":quote.find(class_="text").get_text(),
+                "author":quote.find(class_="author").get_text(),
+                "bio-link":quote.find("a")["href"]
+                })
+        next_btn = soup.find(class_="next")    
+        url = (next_btn.find("a")["href"]) if next_btn else None
+    #     sleep(2)
+    return all_quotes
+
+def start_game(quotes):
+    quote = choice(quotes)
     remaining_guesses = 4
     print("\nHere's a quote: ")
     print(quote["text"])
@@ -37,7 +40,7 @@ def start_game():
             break
         remaining_guesses -= 1
         if remaining_guesses == 3:
-            res = requests.get(f"{base_url}{quote['bio-link']}")
+            res = requests.get(f"{BASE_URL}{quote['bio-link']}")
             soup = BeautifulSoup(res.text, "html.parser")
             birth_date = soup.find(class_="author-born-date").get_text()
             birth_place = soup.find(class_="author-born-location").get_text()
@@ -56,6 +59,8 @@ def start_game():
         again = input("Would you like to play again (y/n)?")    
     if again.lower() in ('y', 'yes'):
         print("Let's Go!")
-        return start_game()
+        return start_game(quotes)
     else: print("Ok, Thanks for playing 😊")
-start_game()
+    
+quotes = scrape_quotes()
+start_game(quotes)
