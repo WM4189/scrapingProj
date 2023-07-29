@@ -3,7 +3,6 @@ from bs4 import BeautifulSoup
 from time import sleep
 from random import choice
 
-
 BASE_URL = "http://quotes.toscrape.com"
 
 def scrape_quotes():
@@ -31,7 +30,7 @@ def start_game(quotes):
     remaining_guesses = 4
     print("\nHere's a quote: ")
     print(quote["text"])
-    print(quote["author"])
+    print(f"(The answer is {quote['author']})")
     guess=''
     while guess.lower() != quote["author"].lower() and remaining_guesses > 0:
         guess = input(f"Who said this quote?  Guesses remaining: {remaining_guesses}\n")
